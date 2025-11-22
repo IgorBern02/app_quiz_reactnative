@@ -7,10 +7,13 @@ import { NameInput } from "../../components/NameInput";
 import { StartButton } from "../../components/StartButton";
 import { usePlayerName } from "../../hooks/usePlayerName";
 import { useState } from "react";
+import { useRouter } from "expo-router";
 
 export default function HomeScreen() {
   const { name, setName, warning, validateName, saveAndStart } =
     usePlayerName();
+
+  const router = useRouter();
 
   const [showModal, setShowModal] = useState(false);
 
@@ -18,6 +21,11 @@ export default function HomeScreen() {
     if (validateName()) {
       setShowModal(true);
     }
+  };
+
+  const confirmStart = () => {
+    saveAndStart();
+    router.push("/quiz");
   };
 
   return (
@@ -42,7 +50,7 @@ export default function HomeScreen() {
         setShowModal={setShowModal}
         showModal={showModal}
         name={name}
-        confirmStart={saveAndStart}
+        confirmStart={confirmStart}
       />
     </View>
   );

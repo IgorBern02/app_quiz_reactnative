@@ -3,7 +3,7 @@ import { Text, View } from "react-native";
 export const Ranking = () => {
   return (
     <View className="w-full mt-8 p-6">
-      <Text className="text-xl font-bold text-gray-800 text-center mb-3">
+      <Text className="text-lg font-bold text-gray-800 text-center mb-3">
         🏆 Tabela de Pontuação
       </Text>
 

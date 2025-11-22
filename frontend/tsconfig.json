@@ -13,6 +13,8 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts",
-    "App.tsx"
+    "App.tsx",
+    "components",
+    "hooks"
   ]
 }

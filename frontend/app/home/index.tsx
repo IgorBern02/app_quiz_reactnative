@@ -25,7 +25,7 @@ export default function HomeScreen() {
 
   const confirmStart = () => {
     saveAndStart();
-    router.push("/quiz");
+    router.push("../quiz");
   };
 
   return (

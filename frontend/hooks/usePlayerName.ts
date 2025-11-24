@@ -19,7 +19,7 @@ export const usePlayerName = () => {
       localStorage?.setItem("currentPlayer", name);
     } catch {}
 
-    router.push("/quiz");
+    router.push("../quiz");
   };
 
   return { name, setName, warning, validateName, saveAndStart };

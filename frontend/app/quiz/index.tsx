@@ -1,8 +1,11 @@
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { QuizCard } from "@/components/QuizCard";
 import { useCountries } from "@/hooks/useCountries";
 import { Country, GameStats, Question } from "@/types/types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { ErrorScreen } from "../+not-found";
+import { GameOverScreen } from "@/components/GameOverScreen";
 
 const INITIAL_STATS: GameStats = {
   score: 0,
@@ -129,6 +132,19 @@ export default function QuizScreen() {
   };
 
   const handleRetry = () => window.location.reload();
+
+  // Telas de estado
+  if (loading) return <LoadingScreen />;
+  if (error || countries.length < 4)
+    return (
+      <ErrorScreen
+        onRetry={handleRetry}
+        message={error || "Não foi possível carregar países suficientes da API"}
+      />
+    );
+  if (gameStats.isGameOver)
+    return <GameOverScreen score={gameStats.score} onRestart={restartGame} />;
+  if (!question) return <LoadingScreen />;
 
   return (
     <View style={styles.container}>

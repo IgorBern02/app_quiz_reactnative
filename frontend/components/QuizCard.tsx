@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
+import { View, Text, Animated } from "react-native";
 import { OptionButton } from "./OptionButton";
 import { Country, Question } from "@/types/types";
 
@@ -24,86 +24,64 @@ export function QuizCard({
   if (!question) {
     return <Text>Carregando...</Text>;
   }
+
   // animações
   const flagOpacity = useRef(new Animated.Value(1)).current;
   const flagScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    if (isChanging) {
-      Animated.parallel([
-        Animated.timing(flagOpacity, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(flagScale, {
-          toValue: 0.95,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.timing(flagOpacity, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-        Animated.timing(flagScale, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
+    Animated.parallel([
+      Animated.timing(flagOpacity, {
+        toValue: isChanging ? 0 : 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(flagScale, {
+        toValue: isChanging ? 0.95 : 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, [isChanging]);
 
   return (
-    <View style={styles.card}>
+    <View className="bg-white p-5 rounded-2xl w-full max-w-[350px] items-center shadow-md">
       {/* Flag container */}
-      <View style={styles.flagWrapper}>
+      <View className="w-64 h-40 mb-6 relative">
         <Animated.Image
           source={{ uri: question.answer.flags.png }}
-          style={[
-            styles.flag,
-            {
-              opacity: flagOpacity,
-              transform: [{ scale: flagScale }],
-            },
-          ]}
+          className="w-full h-full rounded-lg"
+          style={{
+            opacity: flagOpacity,
+            transform: [{ scale: flagScale }],
+          }}
         />
 
         {/* Tempo crítico */}
         {timeLeft <= 5 && !isChanging && (
-          <View style={styles.timerPing}>
-            <Text style={styles.timerPingText}>{timeLeft}</Text>
+          <View className="absolute -top-2 -right-2 bg-red-500 w-8 h-8 rounded-full items-center justify-center">
+            <Text className="text-white font-bold text-xs">{timeLeft}</Text>
           </View>
         )}
 
         {/* Loading */}
         {isChanging && (
-          <View style={styles.loadingWrapper}>
-            <View style={styles.loader} />
+          <View className="absolute inset-0 items-center justify-center">
+            <View className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
           </View>
         )}
       </View>
 
       {/* Opções */}
-      <View style={styles.optionsGrid}>
-        {question.options.map((country, i) => (
+      <View className="w-full flex-row flex-wrap justify-between gap-3">
+        {question.options.map((country) => (
           <Animated.View
             key={country.cca3}
-            style={[
-              styles.optionWrapper,
-              {
-                opacity: isChanging ? 0 : 1,
-                transform: [
-                  {
-                    translateY: isChanging ? 10 : 0,
-                  },
-                ],
-              },
-            ]}
+            className="w-[48%]"
+            style={{
+              opacity: isChanging ? 0 : 1,
+              transform: [{ translateY: isChanging ? 10 : 0 }],
+            }}
           >
             <OptionButton
               country={country}
@@ -116,96 +94,14 @@ export function QuizCard({
 
       {/* Feedback */}
       <Animated.Text
-        style={[
-          styles.feedback,
-          {
-            opacity: feedback ? 1 : 0,
-            transform: [{ scale: feedback ? 1 : 0.95 }],
-          },
-        ]}
+        className="mt-4 min-h-8 text-lg font-semibold text-center"
+        style={{
+          opacity: feedback ? 1 : 0,
+          transform: [{ scale: feedback ? 1 : 0.95 }],
+        }}
       >
         {feedback}
       </Animated.Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 20,
-    width: "100%",
-    maxWidth: 350,
-    alignItems: "center",
-    elevation: 4,
-  },
-
-  flagWrapper: {
-    width: 256,
-    height: 160,
-    marginBottom: 24,
-    position: "relative",
-  },
-
-  flag: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 10,
-    resizeMode: "cover",
-  },
-
-  timerPing: {
-    position: "absolute",
-    top: -10,
-    right: -10,
-    backgroundColor: "#ef4444",
-    width: 32,
-    height: 32,
-    borderRadius: 50,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  timerPingText: {
-    color: "white",
-    fontWeight: "bold",
-    fontSize: 12,
-  },
-
-  loadingWrapper: {
-    position: "absolute",
-    inset: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  loader: {
-    width: 32,
-    height: 32,
-    borderWidth: 4,
-    borderColor: "#3b82f6",
-    borderTopColor: "transparent",
-    borderRadius: 50,
-  },
-
-  optionsGrid: {
-    width: "100%",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-
-  optionWrapper: {
-    width: "48%",
-  },
-
-  feedback: {
-    marginTop: 16,
-    minHeight: 32,
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-  },
-});

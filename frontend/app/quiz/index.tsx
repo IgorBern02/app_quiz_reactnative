@@ -3,8 +3,8 @@ import { QuizCard } from "@/components/QuizCard";
 import { useCountries } from "@/hooks/useCountries";
 import { Country, GameStats, Question } from "@/types/types";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { ErrorScreen } from "../+not-found";
+import { View, Text, TouchableOpacity } from "react-native";
+import { ErrorScreen } from "@/components/ErrorScreen";
 import { GameOverScreen } from "@/components/GameOverScreen";
 
 const INITIAL_STATS: GameStats = {
@@ -23,17 +23,26 @@ export default function QuizScreen() {
   const [skipsLeft, setSkipsLeft] = useState(2);
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
-  const timerRef = useRef<number | null>(null);
-  const hasSaved = useRef(false); // 🔒 evita salvar múltiplas vezes
+  // timerRef tipado corretamente para setInterval
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hasSaved = useRef(false);
 
-  // Efeito do temporizador
+  // TIMER: observe que retornamos SEMPRE uma função de limpeza (cleanup),
+  // mesmo no early-exit, para satisfazer EffectCallback do TS.
   useEffect(() => {
-    if (gameStats.isGameOver || !question || isChanging) return;
+    if (gameStats.isGameOver || !question || isChanging) {
+      // retorna um cleanup vazio válido
+      return () => {};
+    }
 
-    timerRef.current = window.setInterval(() => {
+    timerRef.current = setInterval(() => {
       setGameStats((prev) => {
         if (prev.timeLeft <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
+          // limpa o intervalo antes de processar timeout
+          if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+          }
           handleTimeOut();
           return { ...prev, timeLeft: 0 };
         }
@@ -42,8 +51,14 @@ export default function QuizScreen() {
     }, 1000);
 
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
+    // note: handleTimeOut e loseLife não estão no array de deps porque
+    // são declaradas abaixo (funções com closures controladas). Se você
+    // preferir, mova-as para useCallback com deps explícitas.
   }, [question, gameStats.isGameOver, isChanging]);
 
   const handleTimeOut = () => {
@@ -51,18 +66,25 @@ export default function QuizScreen() {
     loseLife();
   };
 
+  // loseLife refatorado para não depender de gameStats (evita stale closure)
   const loseLife = useCallback(() => {
     setGameStats((prev) => {
       const newLives = prev.lives - 1;
-      return { ...prev, lives: newLives, isGameOver: newLives <= 0 };
-    });
+      const isOver = newLives <= 0;
+      // programamos o comportamento pós-perda usando newLives (valor calculado)
+      setTimeout(() => {
+        setFeedback("");
+        setButtonDisabled(false);
+        if (!isOver) {
+          // gera próxima pergunta apenas se ainda houver vidas
+          generateQuestion();
+        }
+      }, 1200);
 
-    setTimeout(() => {
-      setFeedback("");
-      setButtonDisabled(false);
-      if (gameStats.lives > 1) generateQuestion();
-    }, 1200);
-  }, [gameStats.lives]);
+      return { ...prev, lives: newLives, isGameOver: isOver };
+    });
+    // dependências vazias porque usamos setGameStats com updater
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const generateQuestion = useCallback(
     (data: Country[] = countries) => {
@@ -98,9 +120,13 @@ export default function QuizScreen() {
 
   const handleAnswer = (country: Country) => {
     if (!question || isChanging || gameStats.isGameOver) return;
+
     setButtonDisabled(true);
 
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
 
     const isCorrect = country.name.common === question.answer.name.common;
 
@@ -113,6 +139,7 @@ export default function QuizScreen() {
     }
 
     setTimeout(() => {
+      // usamos o estado atual de gameStats somente para checar isGameOver
       if (!gameStats.isGameOver && (isCorrect || gameStats.lives > 1)) {
         generateQuestion();
       }
@@ -121,9 +148,12 @@ export default function QuizScreen() {
   };
 
   const restartGame = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
 
-    hasSaved.current = false; // 🔄 permite salvar novamente no novo jogo
+    hasSaved.current = false;
     setGameStats(INITIAL_STATS);
     setFeedback("");
     setIsChanging(false);
@@ -131,7 +161,11 @@ export default function QuizScreen() {
     if (countries.length >= 4) generateQuestion(countries);
   };
 
-  const handleRetry = () => window.location.reload();
+  const handleRetry = () => {
+    // no RN você provavelmente usaria navigation; aqui mantive reload para web compat.
+    // substitua se necessário (expo-router/navigation).
+    window?.location?.reload?.();
+  };
 
   // Telas de estado
   if (loading) return <LoadingScreen />;
@@ -147,61 +181,60 @@ export default function QuizScreen() {
   if (!question) return <LoadingScreen />;
 
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerWrapper}>
-        <Text style={styles.title}>🌍 Adivinhe a Bandeira</Text>
+    <View className="flex-1 bg-slate-100 p-6 items-center justify-center">
+      {/* HEADER */}
+      <View className="w-full max-w-md mb-5">
+        <Text className="text-3xl font-bold text-center mb-4">
+          🌍 Adivinhe a Bandeira
+        </Text>
 
-        <View style={styles.statsCard}>
-          <View style={styles.rowBetween}>
-            {/* Vidas */}
-            <View style={styles.rowCenter}>
-              <Text style={styles.label}>Vidas:</Text>
+        <View className="bg-white p-4 rounded-2xl shadow-md">
+          <View className="flex-row justify-between mb-3">
+            {/* VIDAS */}
+            <View className="flex-row items-center">
+              <Text className="text-lg font-semibold mr-2">Vidas:</Text>
 
-              <View style={styles.rowCenter}>
+              <View className="flex-row">
                 {[...Array(3)].map((_, i) => (
                   <View
                     key={i}
-                    style={[
-                      styles.lifeDot,
-                      i < gameStats.lives
-                        ? styles.lifeActive
-                        : styles.lifeInactive,
-                    ]}
+                    className={`w-[22px] h-[22px] rounded-full mx-1 ${
+                      i < gameStats.lives ? "bg-red-500" : "bg-gray-300"
+                    }`}
                   />
                 ))}
               </View>
             </View>
 
-            {/* Pontos */}
-            <Text style={styles.scoreText}>
-              Pontos: <Text style={styles.scoreValue}>{gameStats.score}</Text>
+            {/* PONTOS */}
+            <Text className="text-lg font-semibold">
+              Pontos: <Text className="text-blue-600">{gameStats.score}</Text>
             </Text>
           </View>
 
           {/* Barra de tempo */}
-          <View style={styles.timeBarBackground}>
+          <View className="w-full bg-gray-300 rounded-full h-2">
             <View
-              style={[
-                styles.timeBarFill,
-                {
-                  width: `${(gameStats.timeLeft / 15) * 100}%`,
-                  backgroundColor:
-                    gameStats.timeLeft > 7
-                      ? "#22c55e"
-                      : gameStats.timeLeft > 3
-                        ? "#eab308"
-                        : "#ef4444",
-                },
-              ]}
+              className="h-2 rounded-full"
+              style={{
+                width: `${(gameStats.timeLeft / 15) * 100}%`,
+                backgroundColor:
+                  gameStats.timeLeft > 7
+                    ? "#22c55e"
+                    : gameStats.timeLeft > 3
+                      ? "#eab308"
+                      : "#ef4444",
+              }}
             />
           </View>
 
-          <Text style={styles.timeText}>⏰ {gameStats.timeLeft}s</Text>
+          <Text className="text-sm text-center mt-1 text-slate-600">
+            ⏰ {gameStats.timeLeft}s
+          </Text>
         </View>
       </View>
 
-      {/* Componente de pergunta */}
+      {/* QUIZ CARD */}
       <QuizCard
         question={question}
         onAnswer={handleAnswer}
@@ -212,20 +245,20 @@ export default function QuizScreen() {
         disabled={buttonDisabled}
       />
 
-      {/* Botão de pular */}
+      {/* BOTÃO DE PULAR */}
       <TouchableOpacity
         onPress={() => {
           generateQuestion();
           setSkipsLeft((prev) => prev - 1);
         }}
         disabled={isChanging || gameStats.isGameOver || skipsLeft <= 0}
-        style={[
-          styles.skipButton,
-          (isChanging || gameStats.isGameOver || skipsLeft <= 0) &&
-            styles.skipButtonDisabled,
-        ]}
+        className={`mt-5 px-6 py-3 rounded-xl ${
+          skipsLeft > 0 && !isChanging && !gameStats.isGameOver
+            ? "bg-green-500"
+            : "bg-green-500 opacity-50"
+        }`}
       >
-        <Text style={styles.skipButtonText}>
+        <Text className="text-white font-bold text-lg text-center">
           {isChanging
             ? "⏳ Carregando..."
             : `🔄 Pular Bandeira (${skipsLeft} restantes)`}
@@ -234,113 +267,3 @@ export default function QuizScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f1f5f9",
-    padding: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  headerWrapper: {
-    width: "100%",
-    maxWidth: 400,
-    marginBottom: 20,
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 16,
-  },
-
-  statsCard: {
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 16,
-    elevation: 4,
-  },
-
-  rowBetween: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-
-  rowCenter: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  label: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginRight: 6,
-  },
-
-  lifeDot: {
-    width: 22,
-    height: 22,
-    marginHorizontal: 2,
-    borderRadius: 50,
-  },
-
-  lifeActive: {
-    backgroundColor: "#ef4444",
-  },
-
-  lifeInactive: {
-    backgroundColor: "#d1d5db",
-  },
-
-  scoreText: {
-    fontSize: 18,
-    fontWeight: "600",
-  },
-
-  scoreValue: {
-    color: "#2563eb",
-  },
-
-  timeBarBackground: {
-    width: "100%",
-    backgroundColor: "#e5e7eb",
-    borderRadius: 20,
-    height: 10,
-  },
-
-  timeBarFill: {
-    height: 10,
-    borderRadius: 20,
-  },
-
-  timeText: {
-    marginTop: 4,
-    textAlign: "center",
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#475569",
-  },
-
-  skipButton: {
-    marginTop: 20,
-    backgroundColor: "#22c55e",
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 10,
-  },
-
-  skipButtonDisabled: {
-    opacity: 0.5,
-  },
-
-  skipButtonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-});

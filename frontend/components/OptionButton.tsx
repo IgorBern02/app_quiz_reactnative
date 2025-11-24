@@ -1,5 +1,5 @@
 import { Country } from "@/types/types";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, Text } from "react-native";
 
 interface OptionButtonProps {
   country: Country;
@@ -14,32 +14,18 @@ export function OptionButton({
 }: OptionButtonProps) {
   return (
     <TouchableOpacity
-      style={[styles.button, disabled && styles.buttonDisabled]}
+      className={`
+        bg-gray-100 
+        py-3 px-2 
+        rounded-xl 
+        border border-gray-300 
+        items-center
+        ${disabled ? "opacity-50" : ""}
+      `}
       onPress={() => onPress(country)}
       disabled={disabled}
     >
-      <Text style={styles.text}>{country.name.common}</Text>
+      <Text className="text-lg font-semibold">{country.name.common}</Text>
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: "#f3f4f6",
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-    alignItems: "center",
-  },
-
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-
-  text: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-});

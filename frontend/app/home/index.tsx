@@ -1,10 +1,10 @@
 import { View, Text } from "react-native";
-import { Header } from "../../components/Header";
-import { Ranking } from "../../components/Ranking";
-import { ModalInitial } from "../../components/ModalInitial";
+import { Header } from "../../components/home/Header";
+import { Ranking } from "../../components/home/Ranking";
+import { ModalInitial } from "../../components/home/ModalInitial";
 
-import { NameInput } from "../../components/NameInput";
-import { StartButton } from "../../components/StartButton";
+import { NameInput } from "../../components/home/NameInput";
+import { StartButton } from "../../components/ui/StartButton";
 import { usePlayerName } from "../../hooks/usePlayerName";
 import { useState } from "react";
 import { useRouter } from "expo-router";

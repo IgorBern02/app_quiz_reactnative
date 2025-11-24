@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 
 interface ErrorScreenProps {
-  onRetry: () => void;
+  onRetry?: () => void;
   message?: string;
 }
 

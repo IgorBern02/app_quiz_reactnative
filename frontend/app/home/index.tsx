@@ -8,6 +8,7 @@ import { StartButton } from "../../components/ui/StartButton";
 import { usePlayerName } from "../../hooks/usePlayerName";
 import { useState } from "react";
 import { useRouter } from "expo-router";
+import { useRanking } from "@/hooks/useRanking";
 
 export default function HomeScreen() {
   const { name, setName, warning, validateName, saveAndStart } =
@@ -16,6 +17,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const [showModal, setShowModal] = useState(false);
+  const { scores, loading } = useRanking();
 
   const handleStart = () => {
     if (validateName()) {
@@ -39,7 +41,7 @@ export default function HomeScreen() {
 
         <NameInput name={name} setName={setName} />
 
-        <Ranking />
+        <Ranking scores={scores} loading={loading} />
 
         {warning ? <Text className="text-red-500">{warning}</Text> : null}
 

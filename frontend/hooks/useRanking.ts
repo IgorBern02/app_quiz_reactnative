@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
+import { API_URL } from "../utils/env";
 
 export const useRanking = () => {
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
   useEffect(() => {
     const fetchRanking = async () => {

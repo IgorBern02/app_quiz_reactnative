@@ -4,7 +4,7 @@ export default {
     slug: "quiz",
     version: "1.0.0",
     extra: {
-      EXPO_PUBLIC_API_URL: "https://quiz-country.onrender.com",
+      EXPO_PUBLIC_API_URL: "https://app-quiz-reactnative.onrender.com",
     },
   },
 };

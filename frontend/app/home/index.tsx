@@ -2,13 +2,13 @@ import { View, Text } from "react-native";
 import { Header } from "../../components/home/Header";
 import { Ranking } from "../../components/home/Ranking";
 import { ModalInitial } from "../../components/home/ModalInitial";
-
 import { NameInput } from "../../components/home/NameInput";
 import { StartButton } from "../../components/ui/StartButton";
-import { usePlayerName } from "../../hooks/usePlayerName";
+
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import { useRanking } from "@/hooks/useRanking";
+import { usePlayerName } from "../../hooks/usePlayerName";
 
 export default function HomeScreen() {
   const { name, setName, warning, validateName, saveAndStart } =

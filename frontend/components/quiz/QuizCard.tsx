@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import { View, Text, Animated } from "react-native";
 import { OptionButton } from "./OptionButton";
 import { Country, Question } from "@/types/types";
+import "react-native-reanimated";
 
 interface QuizCardProps {
   question: Question | null;
@@ -25,6 +26,8 @@ export function QuizCard({
     return <Text>Carregando...</Text>;
   }
 
+  if (!question.answer || !question.options) return null;
+
   // animações
   const flagOpacity = useRef(new Animated.Value(1)).current;
   const flagScale = useRef(new Animated.Value(1)).current;
@@ -44,18 +47,26 @@ export function QuizCard({
     ]).start();
   }, [isChanging]);
 
+  const flagUri = question.answer.flags?.png || question.answer.flags?.svg;
+
   return (
     <View className="bg-white p-5 rounded-2xl w-full max-w-[350px] items-center shadow-md">
       {/* Flag container */}
       <View className="w-64 h-40 mb-6 relative">
-        <Animated.Image
-          source={{ uri: question.answer.flags.png }}
-          className="w-full h-full rounded-lg"
-          style={{
-            opacity: flagOpacity,
-            transform: [{ scale: flagScale }],
-          }}
-        />
+        {flagUri ? (
+          <Animated.Image
+            source={{ uri: flagUri }}
+            className="w-full h-full rounded-lg"
+            style={{
+              opacity: flagOpacity,
+              transform: [{ scale: flagScale }],
+            }}
+          />
+        ) : (
+          <View className="w-full h-full bg-gray-200 rounded-lg items-center justify-center">
+            <Text>Imagem indisponível</Text>
+          </View>
+        )}
 
         {/* Tempo crítico */}
         {timeLeft <= 5 && !isChanging && (

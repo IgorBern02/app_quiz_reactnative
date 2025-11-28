@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ActivityIndicator, FlatList, Text, View } from "react-native";
 
 interface RankingProps {

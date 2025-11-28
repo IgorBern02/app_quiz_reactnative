@@ -2,23 +2,25 @@ import { useEffect, useState } from "react";
 import { API_URL } from "../utils/env";
 
 export const useRanking = () => {
-  const [scores, setScores] = useState([]);
+  const [scores, setScores] = useState<{ name: string; score: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchRanking = async () => {
+    const load = async () => {
       try {
+        setLoading(true);
         const res = await fetch(`${API_URL}/api/scores`);
         const data = await res.json();
         setScores(data);
       } catch (err) {
-        console.error("Erro ao carregar ranking:", err);
+        console.log("Erro ranking:", err);
+        setScores([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRanking();
+    load();
   }, []);
 
   return { scores, loading };

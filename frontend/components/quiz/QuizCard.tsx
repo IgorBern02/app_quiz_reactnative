@@ -84,11 +84,11 @@ export function QuizCard({
       </View>
 
       {/* Opções */}
-      <View className="w-full flex-row flex-wrap justify-between gap-3">
+      <View className="w-full flex-col items-center gap-3 ">
         {question.options.map((country) => (
           <Animated.View
             key={country.cca3}
-            className="w-[48%]"
+            className="w-full"
             style={{
               opacity: isChanging ? 0 : 1,
               transform: [{ translateY: isChanging ? 10 : 0 }],

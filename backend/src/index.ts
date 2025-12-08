@@ -52,5 +52,5 @@ app.get("/api/scores", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000 || "0.0.0.0";
 app.listen(PORT, () => console.log(`🚀 Servidor rodando na porta ${PORT}`));

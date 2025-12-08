@@ -1,4 +1,6 @@
+// usePlayerName.ts
 import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 
 export const usePlayerName = () => {
@@ -8,19 +10,24 @@ export const usePlayerName = () => {
   const validateName = () => {
     if (!name.trim()) {
       setWarning("⚠️ Digite seu nome antes de começar!");
-      setTimeout(() => setWarning(""), 3000);
+      setTimeout(() => setWarning(""), 2500);
       return false;
     }
     return true;
   };
 
-  const saveAndStart = () => {
-    try {
-      localStorage?.setItem("currentPlayer", name);
-    } catch {}
+  const confirmStart = async () => {
+    if (!validateName()) return;
 
-    router.push("../quiz");
+    await AsyncStorage.setItem("playerName", name.trim());
+    router.push("/quiz");
   };
 
-  return { name, setName, warning, validateName, saveAndStart };
+  return {
+    name,
+    setName,
+    warning,
+    validateName,
+    confirmStart,
+  };
 };

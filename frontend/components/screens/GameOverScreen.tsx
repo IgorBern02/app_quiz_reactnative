@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import Constants from "expo-constants";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 interface GameOverScreenProps {
   score: number;
   onRestart: () => void;
@@ -16,7 +16,9 @@ export const GameOverScreen = ({ score, onRestart }: GameOverScreenProps) => {
   useEffect(() => {
     const sendScore = async () => {
       try {
-        const name = "Jogador"; // ajuste se usar AsyncStorage
+        const storedName = await AsyncStorage.getItem("playerName");
+        const name = storedName || "Jogador";
+
         await fetch(`${API_URL}/api/scores`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

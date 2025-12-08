@@ -90,6 +90,19 @@ export const useCountries = () => {
           "Malta",
           "Barbados",
           "Chad",
+          "Saint Lucia",
+          "Grenada",
+          "Saint Vincent and the Grenadines",
+          "Antigua and Barbuda",
+          "Dominica",
+          "Seychelles",
+          "Central African Republic",
+          "Cabo Verde",
+          "Solomon Islands",
+          "São Tomé and Príncipe",
+          "Mauritius",
+          "Luxembourg",
+          "Djibouti",
         ];
 
         // Filtro principal

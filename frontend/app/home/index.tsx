@@ -6,15 +6,13 @@ import { NameInput } from "../../components/home/NameInput";
 import { StartButton } from "../../components/ui/StartButton";
 
 import { useState } from "react";
-import { useRouter } from "expo-router";
+
 import { useRanking } from "@/hooks/useRanking";
 import { usePlayerName } from "../../hooks/usePlayerName";
 
 export default function HomeScreen() {
-  const { name, setName, warning, validateName, saveAndStart } =
+  const { name, setName, warning, validateName, confirmStart } =
     usePlayerName();
-
-  const router = useRouter();
 
   const [showModal, setShowModal] = useState(false);
   const { scores, loading } = useRanking();
@@ -23,11 +21,6 @@ export default function HomeScreen() {
     if (validateName()) {
       setShowModal(true);
     }
-  };
-
-  const confirmStart = () => {
-    saveAndStart();
-    router.push("../quiz");
   };
 
   return (

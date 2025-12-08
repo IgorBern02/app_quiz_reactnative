@@ -17,7 +17,7 @@ export function OptionButton({
       className={`
         bg-gray-100 
         p-3
-          
+        w-full
         rounded-xl 
         border border-gray-300 
         items-center

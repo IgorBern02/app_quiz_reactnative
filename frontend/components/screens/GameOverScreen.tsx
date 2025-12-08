@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
+import Constants from "expo-constants";
 
 interface GameOverScreenProps {
   score: number;
@@ -9,7 +10,8 @@ interface GameOverScreenProps {
 
 export const GameOverScreen = ({ score, onRestart }: GameOverScreenProps) => {
   const router = useRouter();
-  const API_URL = process.env.EXPO_PUBLIC_API_URL;
+  const API_URL =
+    Constants.expoConfig?.extra?.EXPO_PUBLIC_API_URL ?? "http://10.0.2.2:5000";
 
   useEffect(() => {
     const sendScore = async () => {

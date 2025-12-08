@@ -10,7 +10,7 @@ import { useCountries } from "@/hooks/useCountries";
 import { Country, GameStats, Question } from "@/types/types";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 
 const INITIAL_STATS: GameStats = {
   score: 0,
@@ -140,32 +140,47 @@ export default function QuizScreen() {
     return <GameOverScreen score={gameStats.score} onRestart={restartGame} />;
 
   return (
-    <View className="flex-1 bg-slate-100 p-6 items-center justify-center">
-      <QuizHeader
-        lives={gameStats.lives}
-        score={gameStats.score}
-        timeLeft={gameStats.timeLeft}
-      />
+    <ScrollView
+      className="flex-1 bg-slate-100"
+      contentContainerStyle={{
+        flexGrow: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+      }}
+      showsVerticalScrollIndicator={false}
+    >
+      {question ? (
+        <>
+          <QuizHeader
+            lives={gameStats.lives}
+            score={gameStats.score}
+            timeLeft={gameStats.timeLeft}
+          />
 
-      <QuizCard
-        question={question!}
-        onAnswer={handleAnswer}
-        feedback={feedback}
-        score={gameStats.score}
-        isChanging={isChanging}
-        timeLeft={gameStats.timeLeft}
-        disabled={buttonDisabled}
-      />
+          <QuizCard
+            question={question!}
+            onAnswer={handleAnswer}
+            feedback={feedback}
+            score={gameStats.score}
+            isChanging={isChanging}
+            timeLeft={gameStats.timeLeft}
+            disabled={buttonDisabled}
+          />
 
-      <SkipButton
-        skipsLeft={skipsLeft}
-        disabled={isChanging || gameStats.isGameOver || skipsLeft <= 0}
-        isChanging={isChanging}
-        onSkip={() => {
-          generateQuestion();
-          setSkipsLeft((prev) => prev - 1);
-        }}
-      />
-    </View>
+          <SkipButton
+            skipsLeft={skipsLeft}
+            disabled={isChanging || gameStats.isGameOver || skipsLeft <= 0}
+            isChanging={isChanging}
+            onSkip={() => {
+              generateQuestion();
+              setSkipsLeft((prev) => prev - 1);
+            }}
+          />
+        </>
+      ) : (
+        <Text>Carregando...</Text>
+      )}
+    </ScrollView>
   );
 }

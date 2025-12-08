@@ -16,7 +16,7 @@ export function OptionButton({
     <TouchableOpacity
       className={`
         bg-gray-100 
-        p-4
+        p-3
           
         rounded-xl 
         border border-gray-300 

@@ -9,10 +9,6 @@ interface Props {
 export function QuizHeader({ lives, score, timeLeft }: Props) {
   return (
     <View className="w-full max-w-md mb-5">
-      <Text className="text-3xl font-bold text-center mb-4">
-        🌍 Adivinhe a Bandeira
-      </Text>
-
       <View className="bg-white p-4 rounded-2xl shadow-md">
         <View className="flex-row justify-between mb-3">
           {/* VIDAS */}

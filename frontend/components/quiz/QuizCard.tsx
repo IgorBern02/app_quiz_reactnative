@@ -1,8 +1,10 @@
 import React, { useRef, useEffect } from "react";
-import { View, Text, Animated } from "react-native";
+import { View, Text, Image, Animated } from "react-native";
 import { OptionButton } from "./OptionButton";
 import { Country, Question } from "@/types/types";
-import "react-native-reanimated";
+
+// Criando AnimatedImage corretamente
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 interface QuizCardProps {
   question: Question | null;
@@ -22,10 +24,7 @@ export function QuizCard({
   timeLeft,
   disabled,
 }: QuizCardProps) {
-  if (!question) {
-    return <Text>Carregando...</Text>;
-  }
-
+  if (!question) return <Text>Carregando...</Text>;
   if (!question.answer || !question.options) return null;
 
   // animações
@@ -47,19 +46,23 @@ export function QuizCard({
     ]).start();
   }, [isChanging]);
 
-  const flagUri = question.answer.flags?.png || question.answer.flags?.svg;
+  const flagUri =
+    question.answer.flags?.png ??
+    question.answer.flags?.svg?.replace(".svg", ".png");
 
   return (
     <View className="bg-white p-5 rounded-2xl w-full max-w-[350px] items-center shadow-md">
       {/* Flag container */}
-      <View className="w-64 h-40 mb-6 relative">
+      <View className="w-56 h-36 mb-4 relative">
         {flagUri ? (
-          <Animated.Image
+          <AnimatedImage
             source={{ uri: flagUri }}
-            className="w-full h-full rounded-lg"
             style={{
               opacity: flagOpacity,
               transform: [{ scale: flagScale }],
+              width: "100%",
+              height: "100%",
+              borderRadius: 8,
             }}
           />
         ) : (
@@ -84,12 +87,12 @@ export function QuizCard({
       </View>
 
       {/* Opções */}
-      <View className="w-full flex-col items-center gap-3 ">
+      <View className="w-full flex-col items-center gap-5">
         {question.options.map((country) => (
           <Animated.View
             key={country.cca3}
-            className="w-full"
             style={{
+              width: "100%",
               opacity: isChanging ? 0 : 1,
               transform: [{ translateY: isChanging ? 10 : 0 }],
             }}
@@ -105,8 +108,12 @@ export function QuizCard({
 
       {/* Feedback */}
       <Animated.Text
-        className="mt-4 min-h-8 text-lg font-semibold text-center"
         style={{
+          marginTop: 16,
+          minHeight: 32,
+          fontSize: 18,
+          fontWeight: "600",
+          textAlign: "center",
           opacity: feedback ? 1 : 0,
           transform: [{ scale: feedback ? 1 : 0.95 }],
         }}

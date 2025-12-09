@@ -10,7 +10,7 @@ import { useCountries } from "@/hooks/useCountries";
 import { Country, GameStats, Question } from "@/types/types";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text } from "react-native";
 
 const INITIAL_STATS: GameStats = {
   score: 0,
